@@ -23,11 +23,11 @@ def reconstruct(pb_path):
     return detection_graph
 
 def detect(image):
-    detection_graph = reconstruct("ssd_mobilenet_v2_taco_2018_03_29.pb")
+    detection_graph = reconstruct("files/ssd_mobilenet_v2_taco_2018_03_29.pb")
     if detection_graph is None:
         return None
 
-    with open("annotations.json") as json_file:
+    with open("files/annotations.json") as json_file:
         data = json.load(json_file)
     categories = data['categories']
     category_index = label_map_util.create_category_index(categories)
