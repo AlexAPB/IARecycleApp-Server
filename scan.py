@@ -1,4 +1,5 @@
 from io import BytesIO
+import base64
 import numpy as np
 import tensorflow as tf
 from PIL import Image
@@ -47,19 +48,30 @@ def detect(image):
             )
 
             npim = np.array(image)
-            vis_util.visualize_boxes_and_labels_on_image_array(
+            vis_util.draw_bounding_boxes_on_image_array(
                 npim,
                 np.squeeze(boxes),
-                np.squeeze(classes).astype(np.int32),
-                np.squeeze(scores),
-                category_index,
-                use_normalized_coordinates=True,
-                line_thickness=15
+                color='yellow',
+                thickness=2
             )
 
             output_image = Image.fromarray(npim)
             byte_io = BytesIO()
             output_image.save(byte_io, format='JPEG')
             byte_io.seek(0)
-            return byte_io
+            image_base64 = base64.b64encode(byte_io.read()).decode('utf-8')
+            
+            detection = list()
+            threshold = 0.5
+            
+            for i in range(int(num[0])):
+                class_id = int(classes[0][i])
+                score = scores[0][i]
+                print(f"{class_id}: {category_index[class_id]['name']} - {float(score)}")
+                if score > threshold:
+                    detection.append({ 'category': class_id, 'score': float(score) })
+            
+            output = { 'image': image_base64, 'detection': detection }
+
+            return output
 
